@@ -1,42 +1,99 @@
-import React, { useState } from 'react';
-import { Trans, useTranslation } from 'react-i18next';
+import React, { useState } from "react";
+import { Trans, useTranslation } from "react-i18next";
 
-import { Block } from '@actual-app/components/block';
-import { ButtonWithLoading } from '@actual-app/components/button';
-import { Text } from '@actual-app/components/text';
-import { theme } from '@actual-app/components/theme';
-import { send } from '@actual-app/core/platform/client/connection';
-import { format } from 'date-fns';
+import { Block } from "@actual-app/components/block";
+import { ButtonWithLoading } from "@actual-app/components/button";
+import { Text } from "@actual-app/components/text";
+import { theme } from "@actual-app/components/theme";
+import { send } from "@actual-app/core/platform/client/connection";
+import { format } from "date-fns";
 
-import { useMetadataPref } from '#hooks/useMetadataPref';
+import { useMetadataPref } from "#hooks/useMetadataPref";
 
-import { Setting } from './UI';
+import { Setting } from "./UI";
 
-export function ExportBudget() {
+export function ExportDashboards() {
   const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [budgetName] = useMetadataPref('budgetName');
-  const [encryptKeyId] = useMetadataPref('encryptKeyId');
+  const [budgetName] = useMetadataPref("budgetName");
 
   async function onExport() {
     setIsLoading(true);
     setError(null);
 
-    const response = await send('export-budget');
+    const response = await send("dashboard-export-all");
 
-    if ('error' in response && response.error) {
+    if ("error" in response && response.error) {
       setError(response.error);
       setIsLoading(false);
-      console.log('Export error code:', response.error);
       return;
     }
 
     if (response.data) {
       void window.Actual.saveFile(
         response.data,
-        `${format(new Date(), 'yyyy-MM-dd')}-${budgetName}.zip`,
-        t('Export budget'),
+        `${format(new Date(), "yyyy-MM-dd")}-${budgetName}-dashboards.zip`,
+        t("Export dashboards")
+      );
+    }
+    setIsLoading(false);
+  }
+
+  return (
+    <Setting
+      primaryAction={
+        <>
+          <ButtonWithLoading onPress={onExport} isLoading={isLoading}>
+            <Trans>Export dashboards</Trans>
+          </ButtonWithLoading>
+          {error && (
+            <Block style={{ color: theme.errorText, marginTop: 15 }}>
+              {t(
+                "An unknown error occurred while exporting. Please report this as a new issue on GitHub."
+              )}
+            </Block>
+          )}
+        </>
+      }
+    >
+      <Text>
+        <Trans>
+          <strong>Export</strong> all your dashboards as a zip file for backup.
+          Each dashboard is saved as a separate JSON file inside the zip. Each
+          dashboard can be imported in the "Reports" tab, then selecting "...",
+          then "Import".
+        </Trans>
+      </Text>
+    </Setting>
+  );
+}
+
+export function ExportBudget() {
+  const { t } = useTranslation();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [budgetName] = useMetadataPref("budgetName");
+  const [encryptKeyId] = useMetadataPref("encryptKeyId");
+
+  async function onExport() {
+    setIsLoading(true);
+    setError(null);
+
+    const response = await send("export-budget");
+
+    if ("error" in response && response.error) {
+      setError(response.error);
+      setIsLoading(false);
+      console.log("Export error code:", response.error);
+      return;
+    }
+
+    if (response.data) {
+      void window.Actual.saveFile(
+        response.data,
+        `${format(new Date(), "yyyy-MM-dd")}-${budgetName}.zip`,
+        t("Export budget")
       );
     }
     setIsLoading(false);
@@ -52,7 +109,7 @@ export function ExportBudget() {
           {error && (
             <Block style={{ color: theme.errorText, marginTop: 15 }}>
               {t(
-                'An unknown error occurred while exporting. Please report this as a new issue on GitHub.',
+                "An unknown error occurred while exporting. Please report this as a new issue on GitHub."
               )}
             </Block>
           )}
@@ -61,7 +118,7 @@ export function ExportBudget() {
     >
       <Text>
         <Trans>
-          <strong>Export</strong> your data as a zip file containing{' '}
+          <strong>Export</strong> your data as a zip file containing{" "}
           <code>db.sqlite</code> and <code>metadata.json</code> files. It can be
           imported into another Actual instance by closing an open file (if
           any), then clicking the "Import file" button, then choosing "Actual."

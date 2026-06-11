@@ -33,7 +33,7 @@ import { BudgetTypeSettings } from './BudgetTypeSettings';
 import { CurrencySettings } from './Currency';
 import { EncryptionSettings } from './Encryption';
 import { ExperimentalFeatures } from './Experimental';
-import { ExportBudget } from './Export';
+import { ExportBudget, ExportDashboards } from './Export';
 import { FormatSettings } from './Format';
 import { LanguageSettings } from './LanguageSettings';
 import { RepairTransactions } from './RepairTransactions';
@@ -246,6 +246,7 @@ export function Settings() {
         <BudgetTypeSettings />
         {isElectron() && <Backups />}
         <ExportBudget />
+        <ExportDashboards />
         <AdvancedToggle>
           <AdvancedAbout />
           <ResetCache />
